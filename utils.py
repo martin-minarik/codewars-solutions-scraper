@@ -46,7 +46,7 @@ def scrape_solutions(context):
         kata_url = kata_link_elem.get_attribute('href')
         kata_title = kata_link_elem.text
         kyu = solution_elem.find_element(*locators.solution_kyu).text
-        language = solution_elem.find_element(*locators.solution_language).text
+        language = solution_elem.find_element(*locators.solution_language).text.rstrip(':')
         code = solution_elem.find_element(*locators.solution_code).text
 
         driver.switch_to.window(context.second_tab_handle)
