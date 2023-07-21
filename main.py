@@ -1,5 +1,7 @@
 from selenium import webdriver
 import tomllib
+from types import SimpleNamespace
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 def load_config():
@@ -24,10 +26,30 @@ def prepare_driver():
     return webdriver.Chrome(options=options)
 
 
-def main():
+def prepare_context():
     config = load_config()
     driver = prepare_driver()
     driver.implicitly_wait(5)
+
+    wait = WebDriverWait(driver, timeout=60, poll_frequency=1)
+
+    first_tab_handle = driver.current_window_handle
+    driver.execute_script("window.open('about:blank','image_tab');")
+    driver.switch_to.window(driver.window_handles[-1])
+    second_tab_handle = driver.current_window_handle
+    driver.switch_to.window(first_tab_handle)
+
+    return SimpleNamespace(config=config,
+                           driver=driver,
+                           wait=wait,
+                           first_tab_handle=first_tab_handle,
+                           second_tab_handle=second_tab_handle
+                           )
+
+
+def main():
+    context = prepare_context()
+
 
     input("Ready? (Enter)")
 
