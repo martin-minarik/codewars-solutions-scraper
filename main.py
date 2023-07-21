@@ -2,6 +2,7 @@ from selenium import webdriver
 import tomllib
 from types import SimpleNamespace
 from selenium.webdriver.support.wait import WebDriverWait
+from utils import enter_codewars, enter_solutions_page, scrape_solutions
 
 
 def load_config():
@@ -29,7 +30,7 @@ def prepare_driver():
 def prepare_context():
     config = load_config()
     driver = prepare_driver()
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(3)
 
     wait = WebDriverWait(driver, timeout=60, poll_frequency=1)
 
@@ -49,7 +50,8 @@ def prepare_context():
 
 def main():
     context = prepare_context()
-
+    enter_codewars(context)
+    enter_solutions_page(context)
 
     input("Ready? (Enter)")
 
