@@ -1,8 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import tomllib
-import locators
 
 
 def load_config():
@@ -30,6 +27,7 @@ def prepare_driver():
 def main():
     config = load_config()
     driver = prepare_driver()
+    driver.implicitly_wait(5)
 
     input("Ready? (Enter)")
 
