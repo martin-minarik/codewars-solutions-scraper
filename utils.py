@@ -78,7 +78,7 @@ def scrape_solutions(context):
 
 def save_solutions(solutions):
     for solution in solutions:
-        directory_path = rf"codewars\{solution['kyu']}\{solution['kata_id']}"
+        directory_path = rf"codewars\{solution['kyu']}\{solution['kata_id']}_{solution['language'].lower()}"
         os.makedirs(directory_path, exist_ok=True)
 
         solution_file_path = os.path.join(directory_path,
