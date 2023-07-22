@@ -6,27 +6,28 @@ from language_extensions import language_map
 from markdownify import markdownify
 from py_markdown_table.markdown_table import markdown_table
 from time import sleep
+from collections import Counter
 
 
 def trim_long_str(name, replacement='', max_length=35):
     return f'{name[:max_length - 3]}{replacement}' if len(name) > max_length else name
 
 
-def to_markdown_table(data: list[dict], keys_order: list):
+def to_markdown_table(data: list[dict], keys_order_alias: dict):
     lengths = [max
                (len(str(k_or_v)) + 2
                 for row in data
                 for k, v in row.items() if k == key
                 for k_or_v in (k, v))
-               for key in keys_order]
+               for key in keys_order_alias]
 
-    table_rows = ['|'.join(f"{key: ^{length}}" for key, length in zip(keys_order, lengths)),
+    table_rows = ['|'.join(f"{key: ^{length}}" for key, length in zip(keys_order_alias.values(), lengths, )),
                   '|'.join(f":{'-' * (length - 2)}:" for length in lengths)]
 
     table_rows.extend(
         '|'.join(
             f"{row[key]: ^{length}}"
-            for key, length in zip(keys_order, lengths)
+            for key, length in zip(keys_order_alias.keys(), lengths)
         )
         for row in data
     )
@@ -119,6 +120,23 @@ def save_solutions(solutions):
             file.write("# Description:\n\n")
             file.write(md_text)
 
-    md_table = to_markdown_table(solutions, keys_order=["kyu", "language", "kata_title", "kata_id"])
+
+def write_summary_readme(solutions):
+    sorted_solutions = sorted(solutions, key=lambda s: s["kyu"])
+
+    md_table = to_markdown_table(sorted_solutions,
+                                 keys_order_alias={"kyu": "Difficulty",
+                                                   "language": "Language",
+                                                   "kata_title": "Kata",
+                                                   "kata_id": "Kata ID"},
+                                 )
+
     with open(r"codewars\README.md", "w", encoding="utf-8") as file:
+        file.write("# Summary\n\n")
+
+        file.write(f"**Total:** {len(solutions)}\n\n")
+
+        file.writelines([f"**{k}:** {v}\n\n"
+                         for k, v in Counter(s["language"] for s in solutions).most_common()])
+
         file.write(md_table)
