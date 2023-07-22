@@ -1,6 +1,12 @@
 import locators
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+import os
+from language_extensions import language_map
+
+
+def trim_long_str(name, replacement='', max_length=35):
+    return f'{name[:max_length - 3]}{replacement}' if len(name) > max_length else name
 
 
 def js_click(driver, elem):
@@ -45,7 +51,7 @@ def scrape_solutions(context):
         kata_link_elem = solution_elem.find_element(*locators.solution_kata_link)
         kata_url = kata_link_elem.get_attribute('href')
         kata_title = kata_link_elem.text
-        kyu = solution_elem.find_element(*locators.solution_kyu).text
+        kyu = solution_elem.find_element(*locators.solution_kyu).text.lower()
         language = solution_elem.find_element(*locators.solution_language).text.rstrip(':')
         code = solution_elem.find_element(*locators.solution_code).text
 
@@ -62,3 +68,18 @@ def scrape_solutions(context):
                           "code": code})
 
     return solutions
+
+
+def save_solutions(solutions):
+    for solution in solutions:
+        directory_path = rf"codewars\{solution['kyu']}\{trim_long_str(solution['kata_title'], '---')}"
+        os.makedirs(directory_path, exist_ok=True)
+
+        solution_file_path = os.path.join(directory_path,
+                                          f"solution{language_map.get(solution['language'])}")
+
+        with open(solution_file_path, 'w') as file:
+            file.write(solution["code"])
+
+        with open(os.path.join(directory_path, "README.md"), "w") as file:
+            file.write(solution["kata_description"])
