@@ -2,7 +2,8 @@ from selenium import webdriver
 import tomllib
 from types import SimpleNamespace
 from selenium.webdriver.support.wait import WebDriverWait
-from utils import enter_codewars, enter_solutions_page, scrape_solutions
+from utils import enter_codewars, enter_solutions_page, scrape_solutions, save_solutions
+
 
 
 def load_config():
@@ -53,7 +54,9 @@ def main():
     enter_codewars(context)
     enter_solutions_page(context)
 
-    input("Ready? (Enter)")
+    solutions = scrape_solutions(context)
+
+    save_solutions(solutions)
 
 
 if __name__ == "__main__":
