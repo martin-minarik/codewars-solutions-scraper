@@ -104,7 +104,7 @@ def save_solutions(solutions):
         os.makedirs(directory_path, exist_ok=True)
 
         solution_file_path = os.path.join(directory_path,
-                                          f"solution{language_map.get(solution['language'])}")
+                                          f"solution{language_map.get(solution['language'].lower(), '.txt')}")
 
         with open(solution_file_path, 'w', encoding="utf-8") as file:
             file.write(solution["code"])
