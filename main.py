@@ -5,7 +5,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from utils import enter_codewars, enter_solutions_page, scrape_solutions, save_solutions
 
 
-
 def load_config():
     with open("config.toml", "rb") as file:
         config = tomllib.load(file)
@@ -56,6 +55,7 @@ def main():
 
     solutions = scrape_solutions(context)
 
+    solutions = sorted(solutions, key=lambda s: s["kyu"])
     save_solutions(solutions)
 
 
