@@ -4,6 +4,8 @@ from selenium.common.exceptions import TimeoutException
 import os
 from language_extensions import language_map
 from markdownify import markdownify
+from py_markdown_table.markdown_table import markdown_table
+from time import sleep
 
 
 def trim_long_str(name, replacement='', max_length=35):
@@ -44,6 +46,9 @@ def scrape_solutions(context):
     # Move to end of page until all solutions are loaded
     while driver.find_elements(*locators.h5_loading_more):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        sleep(0.1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight - 20);")
+        sleep(0.1)
 
     solutions = []
 
