@@ -3,6 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import os
 from language_extensions import language_map
+from markdownify import markdownify
 
 
 def trim_long_str(name, replacement='', max_length=35):
@@ -43,7 +44,6 @@ def scrape_solutions(context):
     # Move to end of page until all solutions are loaded
     while driver.find_elements(*locators.h5_loading_more):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        driver.implicitly_wait(0.5)
 
     solutions = []
 
@@ -57,7 +57,7 @@ def scrape_solutions(context):
 
         driver.switch_to.window(context.second_tab_handle)
         driver.get(kata_url)
-        description = driver.find_element(*locators.kata_description).text
+        description = driver.find_element(*locators.kata_description).get_attribute("innerHTML")
         driver.switch_to.window(context.first_tab_handle)
 
         solutions.append({"kata_id": kata_url.rsplit("/", 1)[1],
@@ -83,4 +83,11 @@ def save_solutions(solutions):
             file.write(solution["code"])
 
         with open(os.path.join(directory_path, "README.md"), "w", encoding="utf-8") as file:
-            file.write(solution["kata_description"])
+            markdown_text = markdownify(solution["kata_description"], heading_style="ATX")
+
+            file.write(f"## {solution['kata_title']}\n\n")
+            file.write(f"**<{solution['kata_url']}>**\n\n")
+            file.write(f"Difficulty: **{solution['kyu']}**\n\n")
+            file.write(f"Language: **{solution['language']}**\n\n")
+            file.write("### Description:\n\n")
+            file.write(markdown_text)
