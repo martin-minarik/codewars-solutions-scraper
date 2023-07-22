@@ -60,7 +60,8 @@ def scrape_solutions(context):
         description = driver.find_element(*locators.kata_description).text
         driver.switch_to.window(context.first_tab_handle)
 
-        solutions.append({"kata_url": kata_url,
+        solutions.append({"kata_id": kata_url.rsplit("/", 1)[1],
+                          "kata_url": kata_url,
                           "kata_title": kata_title,
                           "kata_description": description,
                           "kyu": kyu,
@@ -72,15 +73,14 @@ def scrape_solutions(context):
 
 def save_solutions(solutions):
     for solution in solutions:
-        title = solution['kata_title'].rstrip(".?:<>\"\'/|*")
-        directory_path = rf"codewars\{solution['kyu']}\{trim_long_str(title, '---')}"
+        directory_path = rf"codewars\{solution['kyu']}\{solution['kata_id']}"
         os.makedirs(directory_path, exist_ok=True)
 
         solution_file_path = os.path.join(directory_path,
                                           f"solution{language_map.get(solution['language'])}")
 
-        with open(solution_file_path, 'w') as file:
+        with open(solution_file_path, 'w', encoding="utf-8") as file:
             file.write(solution["code"])
 
-        with open(os.path.join(directory_path, "README.md"), "w") as file:
+        with open(os.path.join(directory_path, "README.md"), "w", encoding="utf-8") as file:
             file.write(solution["kata_description"])
