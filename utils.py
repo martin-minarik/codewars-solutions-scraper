@@ -12,6 +12,28 @@ def trim_long_str(name, replacement='', max_length=35):
     return f'{name[:max_length - 3]}{replacement}' if len(name) > max_length else name
 
 
+def to_markdown_table(data: list[dict], keys_order: list):
+    lengths = [max
+               (len(str(k_or_v)) + 2
+                for row in data
+                for k, v in row.items() if k == key
+                for k_or_v in (k, v))
+               for key in keys_order]
+
+    table_rows = ['|'.join(f"{key: ^{length}}" for key, length in zip(keys_order, lengths)),
+                  '|'.join(f":{'-' * (length - 2)}:" for length in lengths)]
+
+    table_rows.extend(
+        '|'.join(
+            f"{row[key]: ^{length}}"
+            for key, length in zip(keys_order, lengths)
+        )
+        for row in data
+    )
+
+    return '\n'.join(f"|{table_row}|" for table_row in table_rows)
+
+
 def js_click(driver, elem):
     driver.execute_script("arguments[0].click();", elem)
 
@@ -88,11 +110,15 @@ def save_solutions(solutions):
             file.write(solution["code"])
 
         with open(os.path.join(directory_path, "README.md"), "w", encoding="utf-8") as file:
-            markdown_text = markdownify(solution["kata_description"], heading_style="ATX")
+            md_text = markdownify(solution["kata_description"], heading_style="ATX")
 
-            file.write(f"## {solution['kata_title']}\n\n")
+            file.write(f"# {solution['kata_title']}\n\n")
             file.write(f"**<{solution['kata_url']}>**\n\n")
             file.write(f"Difficulty: **{solution['kyu']}**\n\n")
             file.write(f"Language: **{solution['language']}**\n\n")
-            file.write("### Description:\n\n")
-            file.write(markdown_text)
+            file.write("# Description:\n\n")
+            file.write(md_text)
+
+    md_table = to_markdown_table(solutions, keys_order=["kyu", "language", "kata_title", "kata_id"])
+    with open(r"codewars\README.md", "w", encoding="utf-8") as file:
+        file.write(md_table)
