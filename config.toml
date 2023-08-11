@@ -1,1 +1,8 @@
 _session_id = ''
+
+summary_readme_title = ""
+username = ""
+
+# Optional
+#repository = ''
+#branch = 'main'
