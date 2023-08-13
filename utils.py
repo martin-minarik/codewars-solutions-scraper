@@ -16,6 +16,10 @@ def trim_long_str(name, replacement='', max_length=35):
     return f'{name[:max_length - 3]}{replacement}' if len(name) > max_length else name
 
 
+def to_markdown_link(url, alias):
+    return f"[{alias}]({url})"
+
+
 def to_markdown_table(data: list[dict], alias_key_pairs: dict):
     aggregate_functions = [v for v in alias_key_pairs.values() if callable(v)]
     aggregated_values = [func(row) for row in data for func in aggregate_functions]
