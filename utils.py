@@ -56,27 +56,27 @@ def js_click(driver, elem):
     driver.execute_script("arguments[0].click();", elem)
 
 
-def enter_codewars(context):
-    context.driver.get("https://www.codewars.com/")
-    context.driver.add_cookie({"name": "_session_id", "value": context.config["_session_id"]})
-    context.driver.get("https://www.codewars.com/")
+def enter_codewars(driver_context, _session_id):
+    driver_context.driver.get("https://www.codewars.com/")
+    driver_context.driver.add_cookie({"name": "_session_id", "value": _session_id})
+    driver_context.driver.get("https://www.codewars.com/")
 
 
-def enter_solutions_page(context):
-    driver = context.driver
+def enter_solutions_page(driver_context):
+    driver = driver_context.driver
 
     profile_link_elem = driver.find_element(*locators.header_profile_link)
     profile_url = profile_link_elem.get_attribute('href')
     driver.get(profile_url)
 
-    context.wait.until(EC.presence_of_element_located(locators.solutions_tab))
+    driver_context.wait.until(EC.presence_of_element_located(locators.solutions_tab))
     solutions_tab_elem = driver.find_element(*locators.solutions_tab)
     js_click(driver, solutions_tab_elem)
 
 
-def scrape_solutions(context):
-    driver = context.driver
-    wait = context.wait
+def scrape_solutions(driver_context):
+    driver = driver_context.driver
+    wait = driver_context.wait
 
     try:
         wait.until(EC.presence_of_element_located(locators.solution_list_item))
@@ -100,10 +100,10 @@ def scrape_solutions(context):
         language = solution_elem.find_element(*locators.solution_language).text.rstrip(':')
         code = solution_elem.find_element(*locators.solution_code).text
 
-        driver.switch_to.window(context.second_tab_handle)
+        driver.switch_to.window(driver_context.second_tab_handle)
         driver.get(kata_url)
         description = driver.find_element(*locators.kata_description).get_attribute("innerHTML")
-        driver.switch_to.window(context.first_tab_handle)
+        driver.switch_to.window(driver_context.first_tab_handle)
 
         solutions.append({"kata_id": kata_url.rsplit("/", 1)[1],
                           "kata_url": kata_url,
