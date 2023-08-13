@@ -1,33 +1,46 @@
-import locators
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import os
-from language_extensions import language_map
-from markdownify import markdownify
-from py_markdown_table.markdown_table import markdown_table
 from time import sleep
 from collections import Counter
+from itertools import islice
+from itertools import count
+import posixpath
+
+import locators
+from language_extensions import language_map
+from markdownify import markdownify
 
 
 def trim_long_str(name, replacement='', max_length=35):
     return f'{name[:max_length - 3]}{replacement}' if len(name) > max_length else name
 
 
-def to_markdown_table(data: list[dict], keys_order_alias: dict):
-    lengths = [max
-               (len(str(k_or_v)) + 2
-                for row in data
-                for k, v in row.items() if k == key
-                for k_or_v in (k, v))
-               for key in keys_order_alias]
+def to_markdown_table(data: list[dict], alias_key_pairs: dict):
+    aggregate_functions = [v for v in alias_key_pairs.values() if callable(v)]
+    aggregated_values = [func(row) for row in data for func in aggregate_functions]
+    it_aggregated_values = iter(aggregated_values)
+    it_idx_aggregate = count()
 
-    table_rows = ['|'.join(f"{key: ^{length}}" for key, length in zip(keys_order_alias.values(), lengths, )),
-                  '|'.join(f":{'-' * (length - 2)}:" for length in lengths)]
+    lengths = [
+        max(len(alias),
+            *((len(row[key]) for row in data)
+              if isinstance(key, str) else
+              (len(aggregated_value) for aggregated_value in islice(aggregated_values, next(it_idx_aggregate),
+                                                                    None,
+                                                                    len(aggregate_functions))))
+            )
+
+        for alias, key in alias_key_pairs.items()
+    ]
+
+    table_rows = ['|'.join(f"{alias: ^{length + 2}}" for alias, length in zip(alias_key_pairs.keys(), lengths, )),
+                  '|'.join(f":{'-' * length}:" for length in lengths)]
 
     table_rows.extend(
         '|'.join(
-            f"{row[key]: ^{length}}"
-            for key, length in zip(keys_order_alias.keys(), lengths)
+            f"{row[key] if isinstance(key, str) else next(it_aggregated_values): ^{length + 2}}"
+            for key, length in zip(alias_key_pairs.values(), lengths)
         )
         for row in data
     )
