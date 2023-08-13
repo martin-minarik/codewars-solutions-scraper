@@ -141,22 +141,47 @@ def save_solutions(solutions):
             file.write(md_text)
 
 
-def write_summary_readme(solutions):
+def write_summary_readme(solutions,
+                         title="Summary",
+                         username=None,
+                         repository_url: str = None,
+                         branch: str = "main"):
     sorted_solutions = sorted(solutions, key=lambda s: s["kyu"])
 
     md_table = to_markdown_table(sorted_solutions,
-                                 keys_order_alias={"kyu": "Difficulty",
-                                                   "language": "Language",
-                                                   "kata_title": "Kata",
-                                                   "kata_id": "Kata ID"},
+                                 alias_key_pairs={"Difficulty": "kyu",
+                                                  "Language": "language",
+                                                  "Kata": lambda s: to_markdown_link(s["kata_url"],
+                                                                                     s["kata_title"]),
+                                                  "Folder": lambda s: to_markdown_link(
+                                                      posixpath.join(repository_url,
+                                                                     f"tree/{branch}/{s['kyu'].replace(' ', '')}",
+                                                                     f"{s['kata_id']}_{s['language'].lower()}"),
+                                                      rf"{s['kata_id']}_{s['language'].lower()}")
+
+                                                  if repository_url else
+                                                  rf"{s['kata_id']}_{s['language'].lower()}"
+                                                  },
                                  )
 
     with open(r"codewars\README.md", "w", encoding="utf-8") as file:
-        file.write("# Summary\n\n")
+        file.write(f"# {title}\n\n")
 
-        file.write(f"**Total:** {len(solutions)}\n\n")
+        file.write("### Notice! : Don't look at these solutions until you complete them yourself!\n\n")
+
+        if username:
+            file.write("## My Codewars profile\n\n")
+
+            file.write(to_markdown_link(f"https://www.codewars.com/users/{username}",
+                                        f"![Codewars badge](https://www.codewars.com/users/{username}/badges/large)")
+                       + "\n\n")
+
+        file.write("## Solutions\n\n")
+
+        file.write(f"**Total:** {len(sorted_solutions)}\n\n")
 
         file.writelines([f"**{k}:** {v}\n\n"
-                         for k, v in Counter(s["language"] for s in solutions).most_common()])
+                         for k, v in
+                         Counter(s["language"] for s in sorted_solutions).most_common()])
 
         file.write(md_table)
