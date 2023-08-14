@@ -31,8 +31,7 @@ def prepare_driver():
     return webdriver.Chrome(options=options)
 
 
-def prepare_context():
-    config = load_config()
+def prepare_driver_context():
     driver = prepare_driver()
     driver.implicitly_wait(3)
 
@@ -44,18 +43,17 @@ def prepare_context():
     second_tab_handle = driver.current_window_handle
     driver.switch_to.window(first_tab_handle)
 
-    return SimpleNamespace(config=config,
-                           driver=driver,
-                           wait=wait,
-                           first_tab_handle=first_tab_handle,
-                           second_tab_handle=second_tab_handle
-                           )
+    return SimpleNamespace(
+        driver=driver,
+        wait=wait,
+        first_tab_handle=first_tab_handle,
+        second_tab_handle=second_tab_handle
+    )
 
 
 def main():
-    context = prepare_context()
-    enter_codewars(context)
-    enter_solutions_page(context)
+    config = load_config()
+    driver_context = prepare_driver_context()
 
     solutions = scrape_solutions(context)
 
