@@ -12,6 +12,10 @@ def load_config():
     match config:
         case {
             "_session_id": str(),
+            "summary_readme_title": str(),
+            "username": str(),
+            "repository": str(),
+            "branch": str(),
         }:
             pass
         case _:
