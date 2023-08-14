@@ -55,11 +55,17 @@ def main():
     config = load_config()
     driver_context = prepare_driver_context()
 
-    solutions = scrape_solutions(context)
+    enter_codewars(driver_context, config["_session_id"])
+    enter_solutions_page(driver_context)
+    solutions = scrape_solutions(driver_context)
 
     save_solutions(solutions)
 
-    write_summary_readme(solutions)
+    write_summary_readme(solutions,
+                         title=config["summary_readme_title"],
+                         username=config["username"],
+                         repository_url=config["repository"],
+                         branch=config["branch"])
 
 
 if __name__ == "__main__":
