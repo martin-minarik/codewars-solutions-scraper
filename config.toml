@@ -1,8 +1,11 @@
+# Session token, obtainable from codewars cookies
+# Check some tutorial how to inspect cookies in browser
 _session_id = ''
 
-summary_readme_title = ""
-username = ""
+summary_readme_title = "My Codewars solutions"
+username=""
 
-# Optional
-#repository = ''
-#branch = 'main'
+# Optional, fill it if you plan to use generated folder as repository
+# Urls in README.md of generated project will be used for better navigation in repository
+repository = ''
+branch = 'main'
